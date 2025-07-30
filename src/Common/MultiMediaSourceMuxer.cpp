@@ -306,14 +306,23 @@ bool MultiMediaSourceMuxer::setupRecord(MediaSource &sender, Recorder::type type
             return true;
         }
         case Recorder::type_mp4 : {
-            if (start && !_mp4) {
-                //开始录制
+            //if (start && !_mp4) {
+            //    //开始录制
+            //    _option.mp4_save_path = custom_path;
+            //    _option.mp4_max_second = max_second;
+            //    _mp4 = makeRecorder(sender, getTracks(), type, _option);
+            //} else if (!start && _mp4) {
+            //    //停止录制
+            //    _mp4 = nullptr;
+            //}
+            if (start && !_mp4_record) {
+                // 开始录制
                 _option.mp4_save_path = custom_path;
                 _option.mp4_max_second = max_second;
-                _mp4 = makeRecorder(sender, getTracks(), type, _option);
-            } else if (!start && _mp4) {
-                //停止录制
-                _mp4 = nullptr;
+                _mp4_record = makeRecorder(sender, getTracks(), type, _option);
+            } else if (!start && _mp4_record) {
+                // 停止录制
+                _mp4_record = nullptr;
             }
             return true;
         }
@@ -499,6 +508,9 @@ bool MultiMediaSourceMuxer::onTrackReady(const Track::Ptr &track) {
     if (_mp4) {
         ret = _mp4->addTrack(track) ? true : ret;
     }
+    if (_mp4_record) {
+        ret = _mp4_record->addTrack(track) ? true : ret;
+    }
     return ret;
 }
 
@@ -527,6 +539,9 @@ void MultiMediaSourceMuxer::onAllTrackReady() {
     }
     if (_mp4) {
         _mp4->addTrackCompleted();
+    }
+    if (_mp4_record) {
+        _mp4_record->addTrackCompleted();
     }
     if (_fmp4) {
         _fmp4->addTrackCompleted();
@@ -601,6 +616,9 @@ void MultiMediaSourceMuxer::resetTracks() {
     if (_mp4) {
         _mp4->resetTracks();
     }
+    if (_mp4_record) {
+        _mp4_record->resetTracks();
+    }
 }
 
 bool MultiMediaSourceMuxer::onTrackFrame(const Frame::Ptr &frame_in) {
@@ -636,6 +654,9 @@ bool MultiMediaSourceMuxer::onTrackFrame_l(const Frame::Ptr &frame_in) {
     if (_mp4) {
         ret = _mp4->inputFrame(frame) ? true : ret;
     }
+    if (_mp4_record) {
+        ret = _mp4_record->inputFrame(frame) ? true : ret;
+    }
     if (_fmp4) {
         ret = _fmp4->inputFrame(frame) ? true : ret;
     }
@@ -668,8 +689,7 @@ bool MultiMediaSourceMuxer::isEnabled(){
                      (_fmp4 ? _fmp4->isEnabled() : false) ||
                      (_ring ? (bool)_ring->readerCount() : false)  ||
                      (_hls ? _hls->isEnabled() : false) ||
-                     (_hls_fmp4 ? _hls_fmp4->isEnabled() : false) ||
-                     _mp4;
+                     (_hls_fmp4 ? _hls_fmp4->isEnabled() : false) || _mp4 || _mp4_record;
 
         if (_is_enable) {
             //无人观看时，不刷新计时器,因为无人观看时每次都会检查一遍，所以刷新计数器无意义且浪费cpu

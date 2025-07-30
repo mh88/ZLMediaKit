@@ -135,12 +135,12 @@ void HlsMaker::makeIndexFileTime(bool eof) {
     }
 
     onWriteHlsTime(index_str, _last_m3u8_time);
-    DebugL << "write _last_m3u8_time" << _last_m3u8_time;
+    //DebugL << "write _last_m3u8_time" << _last_m3u8_time;
 
     if (truncate) {
         _seg_dur_list_time.clear();
         _last_m3u8_time = mm;
-        DebugL << "clear _seg_dur_list_time";
+        //DebugL << "clear _seg_dur_list_time";
     }
 }
 
