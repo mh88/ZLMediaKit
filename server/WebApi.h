@@ -19,16 +19,19 @@
 #include "Http/HttpSession.h"
 #include "Common/MultiMediaSourceMuxer.h"
 
-//配置文件路径
+// 配置文件路径  [AUTO-TRANSLATED:8a373c2f]
+// Configuration file path
 extern std::string g_ini_file;
 
 namespace mediakit {
-////////////RTSP服务器配置///////////
+// //////////RTSP服务器配置///////////  [AUTO-TRANSLATED:950e1981]
+// //////////RTSP server configuration///////////
 namespace Rtsp {
 extern const std::string kPort;
 } //namespace Rtsp
 
-////////////RTMP服务器配置///////////
+// //////////RTMP服务器配置///////////  [AUTO-TRANSLATED:8de6f41f]
+// //////////RTMP server configuration///////////
 namespace Rtmp {
 extern const std::string kPort;
 } //namespace RTMP
@@ -75,42 +78,45 @@ public:
 
 using ApiArgsType = std::map<std::string, std::string, mediakit::StrCaseCompare>;
 
-template<typename Args, typename First>
-std::string getValue(Args &args, const First &first) {
-    return args[first];
+template<typename Args, typename Key>
+std::string getValue(Args &args, const Key &key) {
+    auto it = args.find(key);
+    if (it == args.end()) {
+        return "";
+    }
+    return it->second;
 }
 
-template<typename First>
-std::string getValue(Json::Value &args, const First &first) {
-    return args[first].asString();
+template<typename Key>
+std::string getValue(Json::Value &args, const Key &key) {
+    auto value = args.find(key);
+    if (value == nullptr) {
+        return "";
+    }
+    return value->asString();
 }
 
-template<typename First>
-std::string getValue(std::string &args, const First &first) {
+template<typename Key>
+std::string getValue(std::string &args, const Key &key) {
     return "";
 }
 
-template<typename First>
-std::string getValue(const mediakit::Parser &parser, const First &first) {
-    auto ret = parser.getUrlArgs()[first];
+template <typename Key>
+std::string getValue(const mediakit::Parser &parser, const Key &key) {
+    auto ret = getValue(parser.getUrlArgs(), key);
     if (!ret.empty()) {
         return ret;
     }
-    return parser.getHeader()[first];
+    return getValue(parser.getHeader(), key);
 }
 
-template<typename First>
-std::string getValue(mediakit::Parser &parser, const First &first) {
-    return getValue((const mediakit::Parser &) parser, first);
-}
-
-template<typename Args, typename First>
-std::string getValue(const mediakit::Parser &parser, Args &args, const First &first) {
-    auto ret = getValue(args, first);
+template<typename Args, typename Key>
+std::string getValue(const mediakit::Parser &parser, Args &args, const Key &key) {
+    auto ret = getValue(args, key);
     if (!ret.empty()) {
         return ret;
     }
-    return getValue(parser, first);
+    return getValue(parser, key);
 }
 
 template<typename Args>
@@ -153,39 +159,48 @@ using ArgsString = HttpAllArgs<std::string>;
 #define API_ARGS_STRING_ASYNC API_ARGS_STRING, const mediakit::HttpSession::HttpResponseInvoker &invoker
 #define API_ARGS_VALUE sender, headerOut, allArgs, val
 
-//注册http请求参数是map<string, variant, StrCaseCompare>类型的http api
+// 注册http请求参数是map<string, variant, StrCaseCompare>类型的http api  [AUTO-TRANSLATED:8a273897]
+// Register http request parameters as map<string, variant, StrCaseCompare> type http api
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_MAP)> &func);
-//注册http请求参数是map<string, variant, StrCaseCompare>类型,但是可以异步回复的的http api
+// 注册http请求参数是map<string, variant, StrCaseCompare>类型,但是可以异步回复的的http api  [AUTO-TRANSLATED:9da5d5f5]
+// Register http request parameters as map<string, variant, StrCaseCompare> type, but can be replied asynchronously http api
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_MAP_ASYNC)> &func);
 
-//注册http请求参数是Json::Value类型的http api(可以支持多级嵌套的json参数对象)
+// 注册http请求参数是Json::Value类型的http api(可以支持多级嵌套的json参数对象)  [AUTO-TRANSLATED:c4794456]
+// Register http request parameters as Json::Value type http api (can support multi-level nested json parameter objects)
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_JSON)> &func);
-//注册http请求参数是Json::Value类型，但是可以异步回复的的http api
+// 注册http请求参数是Json::Value类型，但是可以异步回复的的http api  [AUTO-TRANSLATED:742e57fd]
+// Register http request parameters as Json::Value type, but can be replied asynchronously http api
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_JSON_ASYNC)> &func);
 
-//注册http请求参数是http原始请求信息的http api
+// 注册http请求参数是http原始请求信息的http api  [AUTO-TRANSLATED:72d3fe93]
+// Register http request parameters as http original request information http api
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_STRING)> &func);
-//注册http请求参数是http原始请求信息的异步回复的http api
+// 注册http请求参数是http原始请求信息的异步回复的http api  [AUTO-TRANSLATED:49feefa8]
+// Register http request parameters as http original request information asynchronous reply http api
 void api_regist(const std::string &api_path, const std::function<void(API_ARGS_STRING_ASYNC)> &func);
 
-template<typename Args, typename First>
-bool checkArgs(Args &args, const First &first) {
-    return !args[first].empty();
+template<typename Args, typename Key>
+bool checkArgs(Args &args, const Key &key) {
+    return !args[key].empty();
 }
 
-template<typename Args, typename First, typename ...KeyTypes>
-bool checkArgs(Args &args, const First &first, const KeyTypes &...keys) {
-    return checkArgs(args, first) && checkArgs(args, keys...);
+template<typename Args, typename Key, typename ...KeyTypes>
+bool checkArgs(Args &args, const Key &key, const KeyTypes &...keys) {
+    return checkArgs(args, key) && checkArgs(args, keys...);
 }
 
-//检查http url中或body中或http header参数是否为空的宏
+// 检查http url中或body中或http header参数是否为空的宏  [AUTO-TRANSLATED:9de001a4]
+// Check whether the http url, body or http header parameters are empty
 #define CHECK_ARGS(...)  \
     if(!checkArgs(allArgs,##__VA_ARGS__)){ \
         throw InvalidArgsException("Required parameter missed: " #__VA_ARGS__); \
     }
 
-// 检查http参数中是否附带secret密钥的宏，127.0.0.1的ip不检查密钥
-// 同时检测是否在ip白名单内
+// 检查http参数中是否附带secret密钥的宏，127.0.0.1的ip不检查密钥  [AUTO-TRANSLATED:7546956c]
+// Check whether the http parameters contain the secret key, the ip of 127.0.0.1 does not check the key
+// 同时检测是否在ip白名单内  [AUTO-TRANSLATED:d12f963d]
+// Check whether it is in the ip whitelist at the same time
 #define CHECK_SECRET() \
     do { \
         auto ip = sender.get_peer_ip(); \
